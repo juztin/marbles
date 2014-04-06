@@ -44,7 +44,7 @@ func (c *Context) RedirectPerm(path string) {
 }
 
 func (c *Context) Error(status int) {
-	c.Response.Header().Set("Status", string(status))
+	c.Response.WriteHeader(status)
 }
 
 func (s *Routes) Add(r Route, methods ...string) error {
@@ -92,7 +92,6 @@ func (s *Routes) Connect(r Route) *Routes {
 
 func (s *Routes) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := NewContext(w, r)
-
 	c, ok := s.col[r.Method]
 	if !ok {
 		ctx.Error(http.StatusNotFound)
@@ -100,16 +99,23 @@ func (s *Routes) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, rt := range c {
-		if rt.Matches(r.URL.Path) {
-			if path, ok := rt.IsCanonical(r.URL.Path); !ok {
-				ctx.RedirectPerm(path)
-			} else {
-				//defer _500Handler(ctx)
-				rt.Execute(ctx)
-			}
-			break
+		if !rt.Matches(r.URL.Path) {
+			continue
 		}
+
+		if path, ok := rt.IsCanonical(r.URL.Path); !ok {
+			if r.URL.RawQuery != "" {
+				path = fmt.Sprintf("%s?%s", path, r.URL.RawQuery)
+			}
+			ctx.RedirectPerm(path)
+		} else {
+			//defer _500Handler(ctx)
+			rt.Execute(ctx)
+		}
+		return
 	}
+
+	ctx.Error(http.StatusNotFound)
 }
 
 func emptyParams() map[string]string {
