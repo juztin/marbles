@@ -5,7 +5,7 @@
 package routes
 
 type wildcard struct {
-	handler Handler
+	handler HandlerFunc
 }
 
 func (r *wildcard) Path() string {
@@ -24,13 +24,13 @@ func (r *wildcard) Execute(ctx Context) {
 	r.handler(ctx)
 }
 
-func Wildcard() func(h Handler) Route {
-	return func(h Handler) Route {
+func Wildcard() func(h HandlerFunc) Route {
+	return func(h HandlerFunc) Route {
 		return NewWildcard(h)
 	}
 }
 
-func NewWildcard(h Handler) Route {
+func NewWildcard(h HandlerFunc) Route {
 	rt := new(wildcard)
 	rt.handler = h
 

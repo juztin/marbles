@@ -10,7 +10,7 @@ type re struct {
 	path    string
 	params  func() map[string]string
 	expr    *regexp.Regexp
-	handler Handler
+	handler HandlerFunc
 }
 
 func (r *re) Path() string {
@@ -47,13 +47,13 @@ func params(expr *regexp.Regexp, url string) func() map[string]string {
 	}
 }
 
-func Re(expr string) func(h Handler) Route {
-	return func(h Handler) Route {
+func Re(expr string) func(h HandlerFunc) Route {
+	return func(h HandlerFunc) Route {
 		return NewRe(expr, h)
 	}
 }
 
-func NewRe(expr string, h Handler) Route {
+func NewRe(expr string, h HandlerFunc) Route {
 	rt := new(re)
 	rt.path = expr
 	rt.expr = regexp.MustCompile(expr)

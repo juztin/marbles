@@ -6,7 +6,7 @@ package routes
 
 type static struct {
 	path    string
-	handler Handler
+	handler HandlerFunc
 }
 
 func (r *static) Path() string {
@@ -25,13 +25,13 @@ func (r *static) Execute(ctx Context) {
 	r.handler(ctx)
 }
 
-func Static(expr string) func(h Handler) Route {
-	return func(h Handler) Route {
+func Static(expr string) func(h HandlerFunc) Route {
+	return func(h HandlerFunc) Route {
 		return NewStatic(expr, h)
 	}
 }
 
-func NewStatic(path string, h Handler) Route {
+func NewStatic(path string, h HandlerFunc) Route {
 	rt := new(static)
 	rt.path = path
 	rt.handler = h

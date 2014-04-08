@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-type Handler func(ctx Context)
+type HandlerFunc func(ctx Context)
 
 type Params func() map[string]string
 
@@ -137,6 +137,12 @@ func IsCanonical(p string) (string, bool) {
 	}
 
 	return cp, cp == p
+}
+
+func Wrap(fn http.HandlerFunc) HandlerFunc {
+	return func(ctx Context) {
+		fn(ctx.Response, ctx.Request)
+	}
 }
 
 func New() *Routes {
