@@ -48,9 +48,10 @@ func NewSOCK(sockFile string, mode os.FileMode) (net.Listener, error) {
 	if err != nil {
 		return nil, err
 	}
-	if l, err := net.ListenUnix("unix", sock); err == nil {
-		err = os.Chmod(sockFile, mode)
-		return l, err
+	l, err := net.ListenUnix("unix", sock)
+	if err != nil {
+		return nil, err
 	}
-	return nil, err
+	err = os.Chmod(sockFile, mode)
+	return l, err
 }
