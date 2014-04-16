@@ -124,16 +124,16 @@ func emptyParams() map[string]string {
 
 func IsCanonical(p string) (string, bool) {
 	if len(p) == 0 {
-		return "/", false
+		return "/", true
 	} else if p[0] != '/' {
-		return "/" + p, false
+		p = "/" + p
 	}
 
 	cp := path.Clean(p)
 
-	if cp[len(cp)-1] != '/' {
-		cp = cp + "/"
-		return cp, cp == p
+	if cp[len(cp)-1] == '/' && cp != "/" {
+		cp = cp[:len(cp)-1]
+		return cp + "/", cp == p
 	}
 
 	return cp, cp == p
