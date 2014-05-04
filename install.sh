@@ -1,5 +1,5 @@
 #!/bin/sh -
 
-#go install bitbucket.org/juztin/marbles
-go install bitbucket.org/juztin/marbles/listeners
-go install bitbucket.org/juztin/marbles/routes
+#go install minty.io/marbles
+go install minty.io/marbles/listeners
+go install minty.io/marbles/routes
