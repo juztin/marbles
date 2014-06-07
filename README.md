@@ -5,9 +5,9 @@ Marbles
 
 Marbles is a simple collection of tools for web tasks.
 
- * [Listeners](#Listeners)
- * [Encoders](#Encoders)
- * [Routes](#Routes)
+ * [Listeners](#markdown-header-listeners)
+ * [Encoders](#markdown-header-encoders)
+ * [Routes](#markdown-header-routes)
 
 ----
 
