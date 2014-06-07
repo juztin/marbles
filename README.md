@@ -73,6 +73,8 @@ The encoder looks at the `Accept` header to help determine the encoder to use.
 
 If the content type is unset, or `application/javascript` and there is a `callback` query-string parameter. The resulting JSON data will be wrapped in padding.
 
+----
+
 ## Routes ##
 
 Just some simple routing helpers.  
