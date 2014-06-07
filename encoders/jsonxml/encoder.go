@@ -1,3 +1,9 @@
+// Copyright 2014 Justin Wilson. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// Package jsonxml implements some simple boilerplate for
+// writing JSON/XML data.
 package jsonxml
 
 import (
@@ -8,9 +14,11 @@ import (
 	"net/http"
 )
 
-type encodeFunc func(o interface{}) ([]byte, error)
+// Signature that both the encoding/xml and encoding/json match.
+type marshalFunc func(v interface{}) ([]byte, error)
 
-func jsonpEncoder(callback string) encodeFunc {
+// A wrapper for encoding/json to add padding to the resulting JSON data.
+func jsonpMarshal(callback string) marshalFunc {
 	return func(o interface{}) ([]byte, error) {
 		data, err := json.Marshal(o)
 		if err != nil {
@@ -20,6 +28,7 @@ func jsonpEncoder(callback string) encodeFunc {
 	}
 }
 
+// Adds padding to the given JSON data.
 func pad(data []byte, callback string) []byte {
 	l := len(callback)
 	s := make([]byte, len(data)+l+2)
@@ -30,12 +39,16 @@ func pad(data []byte, callback string) []byte {
 	return s
 }
 
-func Write(w http.ResponseWriter, r *http.Request, o interface{}) error {
-	return WriteStatus(w, r, o, http.StatusOK)
+// Marshal the given data, based on the requests Accept type, and write
+// it to the response.
+func Write(w http.ResponseWriter, r *http.Request, data interface{}) error {
+	return WriteStatus(w, r, data, http.StatusOK)
 }
 
-func WriteStatus(w http.ResponseWriter, r *http.Request, o interface{}, status int) error {
-	var encode encodeFunc
+// Marshal the given data, based on the requests Accept type, and write
+// it to the response with the status.
+func WriteStatus(w http.ResponseWriter, r *http.Request, data interface{}, status int) error {
+	var marshal marshalFunc
 	ct := r.Header.Get("Accept")
 	ct, _, _ = mime.ParseMediaType(ct)
 	switch ct {
@@ -43,18 +56,18 @@ func WriteStatus(w http.ResponseWriter, r *http.Request, o interface{}, status i
 		callback := r.URL.Query().Get("callback")
 		if len(callback) > 0 {
 			ct = "application/javascript"
-			encode = jsonpEncoder(callback)
+			marshal = jsonpMarshal(callback)
 		} else {
 			ct = "application/json"
-			encode = json.Marshal
+			marshal = json.Marshal
 		}
 	case "application/json":
-		encode = json.Marshal
+		marshal = json.Marshal
 	case "application/xml":
-		encode = xml.Marshal
+		marshal = xml.Marshal
 	}
 
-	data, err := encode(o)
+	b, err := marshal(data)
 	if err != nil {
 		status = http.StatusInternalServerError
 	}
@@ -65,7 +78,7 @@ func WriteStatus(w http.ResponseWriter, r *http.Request, o interface{}, status i
 		return err
 	}
 
-	i, err := w.Write(data)
+	i, err := w.Write(b)
 	if err != nil {
 		err = fmt.Errorf("%d bytes written before error: %v", i, err)
 	}
