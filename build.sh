@@ -1,3 +1,3 @@
 #!/bin/sh -
 
-go build ../marbles/listeners ../marbles/routes ../marbles/encoders/jsonxml
+go build ../marbles/listeners ../marbles/routes ../marbles/encoders/jsonxml ../marbles/mux
