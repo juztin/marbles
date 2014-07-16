@@ -210,3 +210,11 @@ func (mux *ServeMux) UnHandle(pattern string) {
 	defer mux.mu.Unlock()
 	delete(mux.m, pattern)
 }
+
+func (mux *ServeMux) ClearRoutes() {
+	mux.mu.Lock()
+	defer mux.mu.Unlock()
+	for pattern := range mux.m {
+		delete(mux.m, pattern)
+	}
+}
