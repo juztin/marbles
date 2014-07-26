@@ -10,12 +10,15 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"mime"
 	"net/http"
 )
 
 // Signature that both the encoding/xml and encoding/json match.
 type marshalFunc func(v interface{}) ([]byte, error)
+type unmarshalFunc func(data []byte, v interface{}) error
 
 // A wrapper for encoding/json to add padding to the resulting JSON data.
 func jsonpMarshal(callback string) marshalFunc {
@@ -83,4 +86,37 @@ func WriteStatus(w http.ResponseWriter, r *http.Request, data interface{}, statu
 		err = fmt.Errorf("%d bytes written before error: %v", i, err)
 	}
 	return err
+}
+
+func read(r *http.Request, data interface{}, reader io.Reader) error {
+	var unmarshal unmarshalFunc
+	ct := r.Header.Get("Accept")
+	ct, _, _ = mime.ParseMediaType(ct)
+	switch ct {
+	default:
+		unmarshal = json.Unmarshal
+	case "application/json":
+		unmarshal = json.Unmarshal
+	case "application/xml":
+		unmarshal = xml.Unmarshal
+	}
+
+	if r.Method != "POST" && r.Method != "PUT" {
+		return nil
+	}
+	defer r.Body.Close()
+	body, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return err
+	}
+	return unmarshal(body, data)
+}
+
+func Read(r *http.Request, data interface{}) error {
+	return read(r, data, r.Body)
+}
+
+func ReadMax(r *http.Request, data interface{}, maxBytes int64) error {
+	reader := io.LimitReader(r.Body, maxBytes)
+	return read(r, data, reader)
 }
