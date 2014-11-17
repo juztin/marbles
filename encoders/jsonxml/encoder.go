@@ -58,10 +58,10 @@ func WriteStatus(w http.ResponseWriter, r *http.Request, data interface{}, statu
 	default:
 		callback := r.URL.Query().Get("callback")
 		if len(callback) > 0 {
-			ct = "application/javascript"
+			ct = "application/javascript; charset=utf-8"
 			marshal = jsonpMarshal(callback)
 		} else {
-			ct = "application/json"
+			ct = "application/json; charset=utf-8"
 			marshal = json.Marshal
 		}
 	case "application/json":

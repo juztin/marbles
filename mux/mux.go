@@ -205,13 +205,15 @@ func (mux *ServeMux) HandleFunc(pattern string, handler func(http.ResponseWriter
 	mux.Handle(pattern, http.HandlerFunc(handler))
 }
 
+// UnHandle removes a pattern from the mux.
 func (mux *ServeMux) UnHandle(pattern string) {
 	mux.mu.Lock()
 	defer mux.mu.Unlock()
 	delete(mux.m, pattern)
 }
 
-func (mux *ServeMux) ClearRoutes() {
+// Clear removes all patterns from the mux.
+func (mux *ServeMux) Clear() {
 	mux.mu.Lock()
 	defer mux.mu.Unlock()
 	for pattern := range mux.m {
