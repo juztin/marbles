@@ -116,7 +116,18 @@ func Read(r *http.Request, data interface{}) error {
 	return read(r, data, r.Body)
 }
 
+func ReadBytes(r *http.Request) ([]byte, error) {
+	defer r.Body.Close()
+	return ioutil.ReadAll(r.Body)
+}
+
 func ReadMax(r *http.Request, data interface{}, maxBytes int64) error {
 	reader := io.LimitReader(r.Body, maxBytes)
 	return read(r, data, reader)
+}
+
+func ReadMaxBytes(r *http.Request, maxBytes int64) ([]byte, error) {
+	defer r.Body.Close()
+	reader := io.LimitReader(r.Body, maxBytes)
+	return ioutil.ReadAll(reader)
 }
